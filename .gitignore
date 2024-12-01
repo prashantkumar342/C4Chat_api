@@ -1,0 +1,50 @@
+# Node.js
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Logs
+logs
+*.log
+*.log.*
+pids
+*.pid
+*.seed
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# dotenv environment variables
+.env
+
+# MongoDB
+data/db
+data/configdb
+
+# Build directory
+dist
+build
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Miscellaneous
+.DS_Store
+*.swp
+*.swo
+*.bak
+
+# VS Code
+.vscode/
+
+# Production
+pm2-log.txt
