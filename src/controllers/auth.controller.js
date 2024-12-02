@@ -84,7 +84,13 @@ export const logout = async (req, res) => {
 
     res
       .status(200)
-      .clearCookie("refToken")
+      .clearCookie("refToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Strict",
+        path: "/",
+        maxAge: 0,
+      })
       .json({ message: "Logout successful" });
   } catch (error) {
     res.status(500).json({ error: "Logout failed", details: error.message });
