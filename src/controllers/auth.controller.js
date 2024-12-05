@@ -39,18 +39,21 @@ export const login = async (req, res) => {
   const { username, password } = req.body;
   try {
     if (!username || !password) {
-      return res.status(400).json({ error: "bad request" });
+      return res
+        .status(400)
+        .json({ error: "Bad request: Username or password missing" });
     }
+
     const isUserExists = await userModel.findOne({ username: username });
     if (!isUserExists) {
-      return res
-        .status(404)
-        .json({ error: "username not found for this name" });
+      return res.status(404).json({ error: "Username not found" });
     }
+
     const isPassMatch = await bcrypt.compare(password, isUserExists.password);
     if (!isPassMatch) {
-      return res.status(409).json({ error: "creds invalid" });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
+
     const refreshToken = await jwt.sign(
       {
         userId: isUserExists._id,
@@ -59,6 +62,7 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "2d" }
     );
+
     return res
       .status(200)
       .cookie("refToken", refreshToken, {
@@ -68,14 +72,16 @@ export const login = async (req, res) => {
         path: "/", // Ensure the cookie is accessible throughout the app
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
-      .json({ success: "successfully loggedIn" });
+      .json({ success: "Successfully logged in" });
   } catch (error) {
+    console.error("Login Error: ", error.message); // Log the error for better debugging
     return res.status(500).json({
-      error: "error while logging in username",
+      error: "Error while logging in",
       details: error.message,
     });
   }
 };
+
 export const logout = async (req, res) => {
   try {
     const user = req.user;

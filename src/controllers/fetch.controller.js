@@ -38,9 +38,15 @@ export const fetchConversation = async (req, res) => {
 
 export const fetchMessages = async (req, res) => {
   try {
-    const conversationId = req.params.conversationId;
-    const objectId = new mongoose.Types.ObjectId(conversationId);
-    const messages = await messageModel.find({ conversation: objectId });
+    const user = req.user;
+    const recipientId = req.params.recipientObjectId;
+    const objectId = new mongoose.Types.ObjectId(recipientId);
+    const recipientUser = await userModel.findById(objectId);
+    const conversation = await conversationModel.findOne({
+      participants: { $all: [user._id, recipientUser._id] },
+    });
+
+    const messages = await messageModel.find({ conversation: conversation._id });
     if (messages.length === 0) {
       return res.status(200).json({ message: "Messages not found" });
     }
