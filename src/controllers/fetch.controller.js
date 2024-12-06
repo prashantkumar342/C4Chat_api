@@ -38,9 +38,13 @@ export const fetchConversation = async (req, res) => {
 
 export const fetchMessages = async (req, res) => {
   try {
+
     const conversationId = req.params.conversationId;
     const objectId = new mongoose.Types.ObjectId(conversationId);
-    const messages = await messageModel.find({ conversation: objectId });
+    const conversation = await conversationModel.findById(conversationId);
+    const messages = await messageModel.find({
+      conversation: conversation._id,
+    });
     if (messages.length === 0) {
       return res.status(200).json({ message: "Messages not found" });
     }
