@@ -4,7 +4,7 @@ import { Conversation as conversationModel } from "../../models/conversationMode
 import { onlineUsers } from "../socket.js";
 
 export const handleMessage = (io, socket, decodedToken) => {
-  socket.on("messageFromClient", async (message) => {
+  socket.on("messageFromClient", async (message, callback) => {
     try {
       const sender = await userModel.findById(decodedToken.userId);
       const receiver = await userModel.findById(message.receiver);
@@ -39,7 +39,6 @@ export const handleMessage = (io, socket, decodedToken) => {
         const participant = conversation.participants.find(
           (participant) => !participant._id.equals(decodedToken.userId)
         );
-        const participantUser = await userModel.findById(participant);
 
         const senderSocketId = onlineUsers.get(sender._id.toString());
         const receiverSocketId = onlineUsers.get(receiver._id.toString());
@@ -80,24 +79,28 @@ export const handleMessage = (io, socket, decodedToken) => {
 
         if (senderSocketId)
           io.to(senderSocketId).emit("updateConversation", updateDataForSender);
-        if (receiverSocketId)
+        if (receiverSocketId) {
           io.to(receiverSocketId).emit(
             "updateConversation",
             updateDataForReceiver
           );
-
-        if (senderSocketId)
-          io.to(senderSocketId).emit("receiveMessage", newMessage);
-        if (receiverSocketId) {
-          io.to(receiverSocketId).emit("receiveMessage", newMessage);
-          newMessage.status = "sent";
-          await newMessage.save();
+          io.to(receiverSocketId).emit("receiveMessage", {
+            ...newMessage.toObject(),
+            tempId: message.tempId, // Include the tempId in the response
+          });
         }
+
+        callback({
+          status: "ok",
+          message: { ...newMessage.toObject(), tempId: message.tempId },
+        });
       } else {
         console.log("Sender or receiver not found.");
+        callback({ status: "error", error: "Sender or receiver not found." });
       }
     } catch (error) {
       console.error("Error handling message:", error);
+      callback({ status: "error", error: "Error handling message." });
     }
   });
 };
