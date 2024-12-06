@@ -16,7 +16,7 @@ router.post("/user/register", register);
 router.post("/user/login", login);
 router.post("/user/logout", authentication, logout);
 router.get("/fetch/conversations", authentication, fetchConversation);
-router.get("/chat/:recipientObjectId", authentication, fetchMessages);
+router.get("/chat/:conversationId", authentication, fetchMessages);
 router.get("/fetch/users", authentication, fetchUsers);
 router.post("/fetch/recipient", authentication, fetchRecipient);
 

@@ -41,7 +41,7 @@ export const fetchMessages = async (req, res) => {
 
     const conversationId = req.params.conversationId;
     const objectId = new mongoose.Types.ObjectId(conversationId);
-    const conversation = await conversationModel.findById(conversationId);
+    const conversation = await conversationModel.findById(objectId);
     const messages = await messageModel.find({
       conversation: conversation._id,
     });
