@@ -10,7 +10,7 @@ export const onlineUsers = new Map();
 const socketIoServer = (httpServer) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: process.env.APP_URL,
+      origin: "*",
       credentials: true,
     },
   });
