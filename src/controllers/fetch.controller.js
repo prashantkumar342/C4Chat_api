@@ -1,7 +1,7 @@
 import { Conversation as conversationModel } from "../models/conversationModel.js";
 import { User as userModel } from "../models/userModel.js";
 import { Message as messageModel } from "../models/messageModel.js";
-import mongoose from "mongoose";;
+import mongoose from "mongoose";
 
 export const fetchConversation = async (req, res) => {
   const userId = req.user._id; // Assuming req.user has the user's information
@@ -38,16 +38,29 @@ export const fetchConversation = async (req, res) => {
 
 export const fetchMessages = async (req, res) => {
   try {
+    const userId = req.user._id;
+    const recipientId = req.params.recipientId;
+    const recipientObjectId = new mongoose.Types.ObjectId(recipientId);
 
-    const conversationId = req.params.conversationId;
-    const objectId = new mongoose.Types.ObjectId(conversationId);
-    const conversation = await conversationModel.findById(objectId);
+    const recipient = await userModel.findById(recipientObjectId);
+    if (!recipient) {
+      return res.status(404).json({ error: "Recipient not found" });
+    }
+
+    const conversation = await conversationModel.findOne({
+      participants: { $all: [userId, recipient._id] },
+    });
+    if (!conversation) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
     const messages = await messageModel.find({
       conversation: conversation._id,
     });
     if (messages.length === 0) {
       return res.status(200).json({ message: "Messages not found" });
     }
+
     return res.status(200).json(messages);
   } catch (error) {
     return res
@@ -56,18 +69,19 @@ export const fetchMessages = async (req, res) => {
   }
 };
 
+
 export const fetchUsers = async (req, res) => {
   try {
     const user = req.user;
     const searchQuery = req.query.search || "";
-    
+
     const users = await userModel
       .find({
         _id: { $ne: user._id },
-        username: { $regex: searchQuery, $options: "i" } // Use regex to perform a case-insensitive search
+        username: { $regex: searchQuery, $options: "i" }, // Use regex to perform a case-insensitive search
       })
       .select("username _id status email avatar");
-    
+
     return res.status(200).json(users);
   } catch (error) {
     return res
@@ -85,6 +99,3 @@ export const fetchRecipient = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-
-
