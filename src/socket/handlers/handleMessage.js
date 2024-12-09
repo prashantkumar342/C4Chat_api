@@ -103,4 +103,12 @@ export const handleMessage = (io, socket, decodedToken) => {
       callback({ status: "error", error: "Error handling message." });
     }
   });
+
+  socket.on("typing", (data) => {
+    const { sender, receiver } = data;
+    const receiverSocketId = onlineUsers.get(receiver);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("typing", { sender });
+    }
+  });
 };
