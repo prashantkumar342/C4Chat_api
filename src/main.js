@@ -4,7 +4,7 @@ import http from "http";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import bodyParser from "body-parser";
-import routes from "./routes/routes.js"
+import routes from "./routes/routes.js";
 import connectDb from "./db/connect.js";
 import socketIoServer from "./socket/socket.js";
 

@@ -26,6 +26,7 @@ const messageSchema = new mongoose.Schema(
       ref: "Conversation",
       required: true,
     },
+    type: { type: String, required: true, enum: ["text", "image", "video"] },
     isRead: {
       type: Boolean,
       default: false,

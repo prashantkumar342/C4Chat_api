@@ -9,7 +9,7 @@ export const fetchConversation = async (req, res) => {
     const conversations = await conversationModel
       .find({ participants: userId })
       .populate("participants", "username avatar status _id email")
-      .populate("lastMessage", "_id content timestamp")
+      .populate("lastMessage", "_id content timestamp type")
       .sort({ updatedAt: -1 });
 
     const formattedConversations = conversations.map((conversation) => {
@@ -21,6 +21,7 @@ export const fetchConversation = async (req, res) => {
         _id: conversation._id,
         lastMessage: {
           _id: conversation.lastMessage?._id,
+          type:conversation.lastMessage.type,
           content: conversation.lastMessage?.content,
           timestamp: conversation.lastMessage?.timestamp,
         },
@@ -54,9 +55,12 @@ export const fetchMessages = async (req, res) => {
       return res.status(404).json({ error: "Conversation not found" });
     }
 
-    const messages = await messageModel.find({
-      conversation: conversation._id,
-    });
+    const messages = await messageModel
+      .find({
+        conversation: conversation._id,
+      })
+      .sort({ timestamp: 1 }); // Ensure messages are sorted by timestamp
+
     if (messages.length === 0) {
       return res.status(200).json({ message: "Messages not found" });
     }
@@ -68,6 +72,7 @@ export const fetchMessages = async (req, res) => {
       .json({ error: "Failed to fetch messages", details: error.message });
   }
 };
+
 
 
 export const fetchUsers = async (req, res) => {

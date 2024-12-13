@@ -27,6 +27,7 @@ export const handleMessage = (io, socket, decodedToken) => {
           sender: decodedToken.userId,
           receiver: message.receiver,
           conversation: conversation._id,
+          type:message.type,
         });
 
         await newMessage.save();
