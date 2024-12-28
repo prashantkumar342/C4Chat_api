@@ -1,11 +1,29 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
+// import { User as userModel } from "../models/userModel.js";
 
-const connectDb = (uri) => {
+const connectDb = async (uri) => {
   try {
-    mongoose.connect(uri);
+    await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 30000, // Increase the server selection timeout
+      socketTimeoutMS: 60000, // Increase the socket timeout
+      connectTimeoutMS: 60000, // Increase the connection timeout
+      maxPoolSize: 20, // Corrected casing for pool size
+    });
+    // await userModel.updateMany(
+    //   {},
+    //   {
+    //     $unset: {
+    //       friends: "",
+    //       friendRequests: "",
+    //       pendingRequests: "",
+    //     },
+    //   }
+    // );
     console.log("Connected to MongoDB 💽");
   } catch (error) {
-    res.status(500).json("Error in connection the database: ", error.message);
+    console.error("Error connecting to the database: ", error.message);
+    // Retry logic
+    setTimeout(() => connectDb(uri), 5000); // Retry after 5 seconds
   }
 };
 

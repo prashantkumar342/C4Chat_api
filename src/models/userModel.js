@@ -17,6 +17,25 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    friends: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: false,
+      },
+    ],
+    friendRequests: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    pendingRequests: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     status: { type: String, enum: ["offline", "online"], default: "offline" },
     avatar: {
       type: String,

@@ -6,6 +6,8 @@ import {
   fetchMessages,
   fetchUsers,
   fetchRecipient,
+  fetchRequest,
+  fetchFriends
 } from "../controllers/fetch.controller.js";
 import authentication from "../middlewares/authentication.middleware.js";
 
@@ -19,6 +21,8 @@ router.get("/fetch/conversations", authentication, fetchConversation);
 router.get("/chat/:recipientId", authentication, fetchMessages);
 router.get("/fetch/users", authentication, fetchUsers);
 router.post("/fetch/recipient", authentication, fetchRecipient);
+router.get('/fetch/requests', authentication, fetchRequest)
+router.get("/fetch/friends", authentication, fetchFriends)
 
 router.post("/authenticate/account", authentication, (req, res) => {
   res.status(200).json({ authentication: "success", user: req.user });

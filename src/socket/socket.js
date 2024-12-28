@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { User as userModel } from "../models/userModel.js"; // Ensure this is correctly imported
 import { Message as messageModel } from "../models/messageModel.js";
 import { handleMessage } from "./handlers/handleMessage.js";
+import { handleFriends, watchProfile } from "./handlers/friendRequest.js";
 
 export const onlineUsers = new Map();
 
@@ -53,6 +54,8 @@ const socketIoServer = (httpServer) => {
       });
 
       handleMessage(io, socket, decodedToken);
+      handleFriends(io, socket, decodedToken);
+      watchProfile(io);
     } catch (error) {
       console.error("Error during user connection handling:", error);
     }

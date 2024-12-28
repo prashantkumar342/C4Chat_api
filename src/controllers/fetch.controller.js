@@ -1,6 +1,7 @@
 import { Conversation as conversationModel } from "../models/conversationModel.js";
 import { User as userModel } from "../models/userModel.js";
 import { Message as messageModel } from "../models/messageModel.js";
+import { FriendRequest as friendRequestModel } from "../models/friendrequestModel.js";
 import mongoose from "mongoose";
 
 export const fetchConversation = async (req, res) => {
@@ -21,7 +22,7 @@ export const fetchConversation = async (req, res) => {
         _id: conversation._id,
         lastMessage: {
           _id: conversation.lastMessage?._id,
-          type:conversation.lastMessage.type,
+          type: conversation.lastMessage.type,
           content: conversation.lastMessage?.content,
           timestamp: conversation.lastMessage?.timestamp,
         },
@@ -73,8 +74,6 @@ export const fetchMessages = async (req, res) => {
   }
 };
 
-
-
 export const fetchUsers = async (req, res) => {
   try {
     const user = req.user;
@@ -83,9 +82,11 @@ export const fetchUsers = async (req, res) => {
     const users = await userModel
       .find({
         _id: { $ne: user._id },
-        username: { $regex: searchQuery, $options: "i" }, // Use regex to perform a case-insensitive search
+        username: { $regex: searchQuery, $options: "i" },
       })
-      .select("username _id status email avatar");
+      .select(
+        "_id username email status avatar friends friendRequests pendingRequests"
+      );
 
     return res.status(200).json(users);
   } catch (error) {
@@ -102,5 +103,28 @@ export const fetchRecipient = async (req, res) => {
     return res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const fetchRequest = async (req, res) => {
+  const userId = req.user._id;
+  try {
+    const requests = await friendRequestModel
+      .find({ recipient: userId })
+      .populate("requester recipient", "username email avatar");
+    res.status(200).json({ requests });
+  } catch (error) {
+    console.error("Error fetching friend requests:", error);
+    res.status(500).json({ message: "Error fetching friend requests" });
+  }
+};
+export const fetchFriends = async (req, res) => {
+  const userId = req.user._id;
+  try {
+    const friends = await userModel.findById(userId).populate("friends");
+    if (!friends) return
+    res.status(200).json(friends);
+  } catch (error) {
+    console.error("Error fetching friend requests", error);
   }
 };
